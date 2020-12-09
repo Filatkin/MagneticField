@@ -1,4 +1,4 @@
-from pylab import *
+import matplotlib.pyplot as plt
 from solver import *
 # Задаем положение проводника
 coordinates = []
@@ -10,44 +10,25 @@ for i in range(int(input())):
     s = input().split()
     coordinates.append((int(s[0]), int(s[1])))
 
-# coordinates = np.array(coordinates).T
+coordinates = np.array(coordinates).T
 
-print('Magnetic field is being calculated(about 1 minute to wait)...')
-
-# Делим проводник на малые кусочки.
-coord = divide(coordinates)
-
+print('Magnetic field is being calculated...')
 # Задаём объём простарнства, в каждой точке которого будет посчитана индукция.
-xwidth = 30
-ywidth = 30
-zwidth = 30
-x = []
-y = []
-z = []
-bmatrix = np.zeros((xwidth, ywidth))
+x = 30
+y = 30
+bmatrix = np.zeros((x, y))
 # Непосредственно подсчёт
-for i in range(xwidth):
-    for j in range(ywidth):
-        k = -zwidth/2
-        while k != zwidth/2:
-            bf = bfield(i, j, k, coord)
-            x.append(bf[0]-i)
-            y.append(bf[1]-j)
-            z.append(bf[2]-k)
-            if k == 1:
-                bmatrix[i][j] = bf[2]
-            k += 1
+for i in range(x):
+    for j in range(y):
+        bmatrix[i][j] = bfield(i, j, coordinates)
 # Рисуем, что получилось
-fig = plt.figure()
-ax = fig.add_subplot(212, projection='3d')
-ax.plot(x, y, z)
-title('Векторное представление линий магнитной индукции')
-x1 = range(xwidth)
-y1 = range(ywidth)
-z1 = bmatrix[x1][y1].T
-ax1 = fig.add_subplot(211)
-# Линиями уровня функции B=B(x1,y1) удобно построить карту силовых линий.
-ax1.contour(x1, y1, z1, 35)
-title('Карта силовых линий магнитного поля данного проводника(видны также искажения вследствие краевых эффектов)')
+fig, ax = plt.subplots()
+x = range(x)
+y = range(y)
+z = bmatrix.T
+# Линиями уровня функции B=B(x1,y1) удобно построить карту силовых линий(из физики известно, что силовые линии
+# магнитного поля представляются как изолинии магнитного потока).
+ax.contour(x, y, z, 35)
+plt.title('Карта силовых линий магнитного поля (видны также искажения вследствие краевых эффектов)')
 plt.show()
 
